@@ -1,0 +1,847 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Scientific Calculator</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #10172a, #172554, #312e81);
+    color: white;
+    padding: 30px 15px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #93c5fd;
+}
+
+header p {
+    color: #cbd5e1;
+    font-size: 15px;
+}
+
+.main-container {
+    max-width: 1150px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.calculator, .explanation {
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+}
+
+.display {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    min-height: 115px;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.display-label {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+#expression {
+    color: #cbd5e1;
+    font-size: 19px;
+    min-height: 25px;
+}
+
+#result {
+    color: #67e8f9;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 8px;
+    min-height: 35px;
+}
+
+.mode-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mode-row label {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.mode-row select {
+    background: #1e293b;
+    color: white;
+    padding: 9px 13px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 15px 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #334155;
+    color: white;
+    transition: 0.2s;
+    min-height: 52px;
+}
+
+button:hover {
+    background: #475569;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+.scientific {
+    background: #312e81;
+    color: #c4b5fd;
+}
+
+.operator {
+    background: #075985;
+    color: #bae6fd;
+}
+
+.clear {
+    background: #991b1b;
+    color: #fecaca;
+}
+
+.delete {
+    background: #9a3412;
+    color: #fed7aa;
+}
+
+.equal {
+    background: #059669;
+    color: white;
+    grid-column: span 2;
+}
+
+.zero {
+    grid-column: span 2;
+}
+
+.explanation h2 {
+    color: #93c5fd;
+    margin-bottom: 12px;
+    font-size: 23px;
+}
+
+.explanation > p {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 17px;
+}
+
+.explanation-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 17px;
+    border-radius: 13px;
+    min-height: 220px;
+}
+
+.explanation-box h3 {
+    color: #67e8f9;
+    margin-bottom: 13px;
+    font-size: 17px;
+}
+
+#steps {
+    color: #e2e8f0;
+    font-size: 14px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+.step {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background: #1e293b;
+    border-left: 3px solid #38bdf8;
+    border-radius: 5px;
+}
+
+.final-answer {
+    background: #064e3b;
+    color: #a7f3d0;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.history {
+    margin-top: 18px;
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.history h3 {
+    color: #93c5fd;
+    margin-bottom: 10px;
+}
+
+#historyList {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.8;
+    max-height: 130px;
+    overflow-y: auto;
+}
+
+.history-item {
+    border-bottom: 1px solid #334155;
+    padding: 5px 0;
+}
+
+.hint {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #94a3b8;
+    margin-top: 30px;
+    font-size: 13px;
+}
+
+@media(max-width: 800px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 430px) {
+    .buttons {
+        gap: 7px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 13px 3px;
+    }
+
+    .calculator, .explanation {
+        padding: 14px;
+    }
+
+    header h1 {
+        font-size: 25px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Scientific Calculator</h1>
+    <p>Smart Calculator with Step-by-Step Problem Explanation</p>
+</header>
+
+<div class="main-container">
+
+    <section class="calculator">
+
+        <div class="display">
+            <div class="display-label">YOUR EXPRESSION</div>
+            <div id="expression">0</div>
+            <div id="result">= 0</div>
+        </div>
+
+        <div class="mode-row">
+            <label for="angleMode">Angle Mode</label>
+            <select id="angleMode" onchange="updatePreview()">
+                <option value="DEG">Degrees (DEG)</option>
+                <option value="RAD">Radians (RAD)</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+
+            <button class="clear" onclick="clearAll()">AC</button>
+            <button class="delete" onclick="deleteLast()">DEL</button>
+            <button class="operator" onclick="append('(')">(</button>
+            <button class="operator" onclick="append(')')">)</button>
+            <button class="operator" onclick="append('/')">÷</button>
+
+            <button class="scientific" onclick="append('sin(')">sin</button>
+            <button class="scientific" onclick="append('cos(')">cos</button>
+            <button class="scientific" onclick="append('tan(')">tan</button>
+            <button class="scientific" onclick="append('sqrt(')">√</button>
+            <button class="operator" onclick="append('*')">×</button>
+
+            <button class="scientific" onclick="append('log(')">log</button>
+            <button class="scientific" onclick="append('ln(')">ln</button>
+            <button class="scientific" onclick="append('^')">xʸ</button>
+            <button class="scientific" onclick="append('!')">n!</button>
+            <button class="operator" onclick="append('-')">−</button>
+
+            <button class="scientific" onclick="append('pi')">π</button>
+            <button class="scientific" onclick="append('e')">e</button>
+            <button class="scientific" onclick="append('%')">%</button>
+            <button class="operator" onclick="append('+')">+</button>
+            <button class="scientific" onclick="append('abs(')">abs</button>
+
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button class="scientific" onclick="append('exp(')">exp</button>
+            <button class="scientific" onclick="append('^2')">x²</button>
+
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button class="scientific" onclick="append('1/')">1/x</button>
+            <button class="scientific" onclick="append('^3')">x³</button>
+
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button onclick="append('.')">.</button>
+            <button class="scientific" onclick="append('10^(')">10ˣ</button>
+
+            <button class="zero" onclick="append('0')">0</button>
+            <button onclick="append('00')">00</button>
+            <button class="equal" onclick="calculate()">= CALCULATE</button>
+
+        </div>
+
+        <p class="hint">
+            Keyboard Support: Numbers, +, -, *, /, brackets, Enter to calculate,
+            Backspace to delete and Escape to clear.
+        </p>
+
+    </section>
+
+    <section class="explanation">
+
+        <h2>Step-by-Step Explanation</h2>
+
+        <p>
+            Enter a mathematical expression and press the calculate button.
+            The calculator explains each operation in the order it is performed.
+        </p>
+
+        <div class="explanation-box">
+            <h3>Problem Solution</h3>
+            <div id="steps">
+                <div class="step">
+                    Welcome! Enter a problem in the calculator.
+                </div>
+                <div class="step">
+                    Example: 25 + 5 × 4
+                </div>
+                <div class="step">
+                    The solution will appear here step by step.
+                </div>
+            </div>
+        </div>
+
+        <div class="history">
+            <h3>Calculation History</h3>
+            <div id="historyList">No calculations yet.</div>
+        </div>
+
+    </section>
+
+</div>
+
+<footer>
+    <p>Exercise 04 | Online Scientific Calculator | HTML, CSS & JavaScript</p>
+</footer>
+
+<script>
+
+let expression = "";
+
+const expressionDisplay = document.getElementById("expression");
+const resultDisplay = document.getElementById("result");
+const stepsDisplay = document.getElementById("steps");
+const historyList = document.getElementById("historyList");
+
+function append(value) {
+    expression += value;
+    updatePreview();
+}
+
+function clearAll() {
+    expression = "";
+    expressionDisplay.textContent = "0";
+    resultDisplay.textContent = "= 0";
+
+    stepsDisplay.innerHTML =
+        '<div class="step">Calculator cleared. Enter a new problem.</div>';
+}
+
+function deleteLast() {
+    expression = expression.slice(0, -1);
+    updatePreview();
+}
+
+function updatePreview() {
+    expressionDisplay.textContent = expression || "0";
+
+    if (!expression) {
+        resultDisplay.textContent = "= 0";
+        return;
+    }
+
+    try {
+        const answer = evaluateExpression(expression, false);
+        resultDisplay.textContent = "= " + formatNumber(answer.value);
+    } catch (error) {
+        resultDisplay.textContent = "= ...";
+    }
+}
+
+function formatNumber(number) {
+    if (!Number.isFinite(number)) {
+        return String(number);
+    }
+
+    if (Math.abs(number) < 1e-12) {
+        return "0";
+    }
+
+    return Number(number.toPrecision(12)).toString();
+}
+
+function calculate() {
+    if (!expression.trim()) {
+        stepsDisplay.innerHTML =
+            '<div class="step">Please enter a mathematical expression first.</div>';
+        return;
+    }
+
+    try {
+        const solution = evaluateExpression(expression, true);
+
+        resultDisplay.textContent = "= " + formatNumber(solution.value);
+
+        let html = "";
+
+        html += `<div class="step">
+            <strong>Given Problem:</strong><br>
+            ${escapeHTML(expression)}
+        </div>`;
+
+        html += `<div class="step">
+            <strong>Step 1: Apply mathematical operations</strong>
+        </div>`;
+
+        if (solution.steps.length === 0) {
+            html += `<div class="step">The entered value does not require additional operations.</div>`;
+        }
+
+        solution.steps.forEach((step, index) => {
+            html += `<div class="step">
+                <strong>Step ${index + 2}:</strong><br>
+                ${escapeHTML(step)}
+            </div>`;
+        });
+
+        html += `<div class="final-answer">
+            Final Answer: ${formatNumber(solution.value)}
+        </div>`;
+
+        stepsDisplay.innerHTML = html;
+
+        addHistory(expression, solution.value);
+
+    } catch (error) {
+        resultDisplay.textContent = "= Error";
+
+        stepsDisplay.innerHTML =
+            `<div class="step">
+                <strong>Invalid Expression</strong><br>
+                ${escapeHTML(error.message)}
+            </div>`;
+    }
+}
+
+function escapeHTML(text) {
+    return String(text).replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+
+// Mathematical expression parser
+
+function evaluateExpression(source, collectSteps = true) {
+
+    const tokens = source.match(
+        /(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|[a-zA-Z]+|[()+\-*/^%!]/gi
+    ) || [];
+
+    const cleaned = source.replace(/\s/g, "");
+
+    if (!cleaned || tokens.join("") !== cleaned) {
+        throw new Error("Please check the entered expression.");
+    }
+
+    let position = 0;
+    const steps = [];
+
+    function current() {
+        return tokens[position];
+    }
+
+    function consume() {
+        return tokens[position++];
+    }
+
+    function expect(value) {
+        if (current() !== value) {
+            throw new Error("Missing or incorrect bracket or operator.");
+        }
+        consume();
+    }
+
+    function record(message) {
+        if (collectSteps) {
+            steps.push(message);
+        }
+    }
+
+    function checked(value) {
+        if (!Number.isFinite(value)) {
+            throw new Error("This calculation has no finite result.");
+        }
+        return value;
+    }
+
+    function factorial(n) {
+        if (n < 0 || !Number.isInteger(n) || n > 170) {
+            throw new Error("Factorial requires a whole number from 0 to 170.");
+        }
+
+        let answer = 1;
+
+        for (let i = 2; i <= n; i++) {
+            answer *= i;
+        }
+
+        return answer;
+    }
+
+    function expressionRule() {
+        let value = termRule();
+
+        while (current() === "+" || current() === "-") {
+            const operator = consume();
+            const right = termRule();
+            const old = value;
+
+            value = checked(
+                operator === "+" ? value + right : value - right
+            );
+
+            record(
+                `${formatNumber(old)} ${operator} ${formatNumber(right)} = ${formatNumber(value)}`
+            );
+        }
+
+        return value;
+    }
+
+    function termRule() {
+        let value = unaryRule();
+
+        while (current() === "*" || current() === "/") {
+            const operator = consume();
+            const right = unaryRule();
+            const old = value;
+
+            if (operator === "/" && right === 0) {
+                throw new Error("Division by zero is not allowed.");
+            }
+
+            value = checked(
+                operator === "*" ? value * right : value / right
+            );
+
+            record(
+                `${formatNumber(old)} ${operator === "*" ? "×" : "÷"} ${formatNumber(right)} = ${formatNumber(value)}`
+            );
+        }
+
+        return value;
+    }
+
+    function unaryRule() {
+        if (current() === "+") {
+            consume();
+            return unaryRule();
+        }
+
+        if (current() === "-") {
+            consume();
+            return -unaryRule();
+        }
+
+        return powerRule();
+    }
+
+    function powerRule() {
+        let value = primaryRule();
+
+        if (current() === "^") {
+            consume();
+
+            const right = unaryRule();
+            const old = value;
+
+            value = checked(Math.pow(value, right));
+
+            record(
+                `${formatNumber(old)} raised to ${formatNumber(right)} = ${formatNumber(value)}`
+            );
+        }
+
+        return postfixRule(value);
+    }
+
+    function postfixRule(value) {
+        while (current() === "!" || current() === "%") {
+            const operator = consume();
+            const old = value;
+
+            if (operator === "!") {
+                value = factorial(value);
+
+                record(
+                    `${formatNumber(old)} factorial = ${formatNumber(value)}`
+                );
+            } else {
+                value = value / 100;
+
+                record(
+                    `${formatNumber(old)}% = ${formatNumber(value)}`
+                );
+            }
+        }
+
+        return value;
+    }
+
+    function primaryRule() {
+        const token = current();
+
+        if (!token) {
+            throw new Error("Incomplete mathematical expression.");
+        }
+
+        if (token === "(") {
+            consume();
+
+            const value = expressionRule();
+
+            expect(")");
+
+            return value;
+        }
+
+        if (/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(token)) {
+            consume();
+            return Number(token);
+        }
+
+        if (/^[a-zA-Z]+$/.test(token)) {
+            const name = consume().toLowerCase();
+
+            if (name === "pi") return Math.PI;
+            if (name === "e") return Math.E;
+
+            expect("(");
+
+            const input = expressionRule();
+
+            expect(")");
+
+            let answer;
+
+            switch (name) {
+                case "sin":
+                    answer = Math.sin(toRadians(input));
+                    break;
+
+                case "cos":
+                    answer = Math.cos(toRadians(input));
+                    break;
+
+                case "tan":
+                    if (
+                        document.getElementById("angleMode").value === "DEG" &&
+                        Math.abs(Math.cos(toRadians(input))) < 1e-12
+                    ) {
+                        throw new Error("Tan is undefined for this angle.");
+                    }
+
+                    answer = Math.tan(toRadians(input));
+                    break;
+
+                case "sqrt":
+                    if (input < 0) {
+                        throw new Error("Square root of a negative number is not supported.");
+                    }
+                    answer = Math.sqrt(input);
+                    break;
+
+                case "log":
+                    if (input <= 0) {
+                        throw new Error("Log requires a positive number.");
+                    }
+                    answer = Math.log10(input);
+                    break;
+
+                case "ln":
+                    if (input <= 0) {
+                        throw new Error("Natural log requires a positive number.");
+                    }
+                    answer = Math.log(input);
+                    break;
+
+                case "abs":
+                    answer = Math.abs(input);
+                    break;
+
+                case "exp":
+                    answer = Math.exp(input);
+                    break;
+
+                default:
+                    throw new Error("Unknown function: " + name);
+            }
+
+            answer = checked(answer);
+
+            record(
+                `${name}(${formatNumber(input)}) = ${formatNumber(answer)}`
+            );
+
+            return answer;
+        }
+
+        throw new Error("Unexpected value: " + token);
+    }
+
+    function toRadians(value) {
+        const mode = document.getElementById("angleMode").value;
+
+        return mode === "DEG"
+            ? value * Math.PI / 180
+            : value;
+    }
+
+    const value = expressionRule();
+
+    if (position !== tokens.length) {
+        throw new Error("Please check the expression near: " + current());
+    }
+
+    return {
+        value: checked(value),
+        steps: steps
+    };
+}
+
+function addHistory(problem, answer) {
+    if (historyList.textContent === "No calculations yet.") {
+        historyList.innerHTML = "";
+    }
+
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    item.textContent =
+        problem + " = " + formatNumber(answer);
+
+    historyList.prepend(item);
+}
+
+document.addEventListener("keydown", function(event) {
+
+    if (/^[0-9.]$/.test(event.key)) {
+        append(event.key);
+    }
+
+    else if (["+", "-", "*", "/", "^", "(", ")", "%", "!"].includes(event.key)) {
+        append(event.key);
+    }
+
+    else if (event.key === "Enter" || event.key === "=") {
+        event.preventDefault();
+        calculate();
+    }
+
+    else if (event.key === "Backspace") {
+        deleteLast();
+    }
+
+    else if (event.key === "Escape") {
+        clearAll();
+    }
+});
+
+</script>
+
+</body>
+</html>
